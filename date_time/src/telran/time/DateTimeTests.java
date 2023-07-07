@@ -34,9 +34,12 @@ class DateTimeTests {
 		TemporalAdjuster fr13 = new NextFriday13();
 		ZonedDateTime zdt = ZonedDateTime.now();
 		ZonedDateTime fr13Expected = ZonedDateTime.of(2023, 10, 13, 0, 0, 0, 0, ZoneId.systemDefault());
-		assertEquals(fr13Expected, zdt.with(fr13));
-		LocalDate fr13Expected2 = LocalDate.of(2024, 9, 13);
+		assertEquals(fr13Expected.toLocalDate(), zdt.with(fr13).toLocalDate());
 		LocalDate ld = LocalDate.of(2023, 10, 13);
+		
+		assertEquals(ld, zdt.with(fr13).toLocalDate());
+		LocalDate fr13Expected2 = LocalDate.of(2024, 9, 13);
+		
 		assertEquals(fr13Expected2, ld.with(fr13));
 		LocalDate ld1 = LocalDate.of(2023, 10, 12);
 		LocalDate ld2 = LocalDate.of(2023, 10, 14);
@@ -44,20 +47,26 @@ class DateTimeTests {
 		assertEquals(fr13Expected3, ld1.with(fr13));
 		assertEquals(fr13Expected2, ld2.with(fr13));
 		
+		assertThrowsExactly(UnsupportedTemporalTypeException.class, 
+				() -> LocalTime.now().with(new NextFriday13()));
+		
 			
 	}
 	@Test
 	void canadaCurrentTime() {
 		//displayCurrentTime(""); all Zones
 	//	displayCurrentTime("Canada/Mountain");
-		//TODO display current date & time in all time zones related to Canada
+		// display current date & time in all time zones related to Canada
 		//Date / Time (HH:mm) / Time Zone name
-		String strCanada = "Canada";
+		final String zoneName = "Canada";
 		Set setAllZones = ZoneId.getAvailableZoneIds();
-		
+		ZonedDateTime zoneTimeNow = ZonedDateTime.now();
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy / HH:mm / VV");
 		setAllZones.stream()
-		.filter(el -> el.toString().contains(strCanada))
-		.forEach(el -> displayCurrentTime(el.toString()));
+		.filter(el -> el.toString().contains(zoneName))
+		.forEach(el -> 
+			System.out.println((zoneTimeNow.ofInstant(Instant.now(),ZoneId.of(el.toString())).format(formatter)))
+		);
 		
 		
 	}
@@ -65,14 +74,9 @@ void displayCurrentTime(String zoneName) {
 	//ZoneId.getAvailableZoneIds()
 	//.forEach(System.out::println);
 	//ZonedDateTime.now().ofInstant(Instant.now(),ZoneId.of(zoneName));
-	//System.out.println(ZonedDateTime.now().ofInstant(Instant.now(),ZoneId.of(zoneName)));
-	ZonedDateTime zoneCurrent = ZonedDateTime.now().ofInstant(Instant.now(),ZoneId.of(zoneName));
-	
-	DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-	DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("HH:mm");
-	String strToPrint = "Date "+zoneCurrent.format(formatter1)+" / Time  "+zoneCurrent.format(formatter2)+" / Time zone name "+zoneCurrent.getZone();
-	
-	System.out.println(strToPrint);
-	
+	System.out.println(ZonedDateTime.now().ofInstant(Instant.now(),ZoneId.of(zoneName)));
+
 }
+
+
 }
