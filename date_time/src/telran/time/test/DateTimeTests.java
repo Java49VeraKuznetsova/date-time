@@ -1,6 +1,7 @@
-package telran.time;
+package telran.time.test;
 
 import static org.junit.jupiter.api.Assertions.*;
+import telran.time.*;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -77,6 +78,30 @@ void displayCurrentTime(String zoneName) {
 	System.out.println(ZonedDateTime.now().ofInstant(Instant.now(),ZoneId.of(zoneName)));
 
 }
+// Yuri code
+/*
+ * @Test
+	void canadaCurrentTime() {
+		//displayCurrentTime("Europe/London");
+		//TODO display current date & time in all time zones related to Canada
+		//Date / Time (HH:mm) / Time Zone name
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/YYYY / HH:mm / zzzz");
+		THIS!!!
+		ZoneId.getAvailableZoneIds().stream().filter)z->z.contains("Canada@()
+		.forEach(z -> displayCurrentTime (z, dtf));
+		OR THIS!!
+		for(String zoneName: ZoneId.getAvailableZoneIds()) {
+			if (zoneName.contains("Canada")) {
+				displayCurrentTime(zoneName, dtf) ;
+			}
+		}
+		
+	}
+	void displayCurrentTime(String zoneName, DateTimeFormatter dtf) {
 
+		System.out.println(ZonedDateTime.ofInstant(Instant.now(),
+				ZoneId.of(zoneName)).format(dtf));
+	}
+ */
 
 }
