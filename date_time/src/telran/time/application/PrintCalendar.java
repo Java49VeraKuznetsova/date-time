@@ -1,5 +1,6 @@
 package telran.time.application;
 
+import java.text.DateFormatSymbols;
 import java.time.*;
 import java.time.format.TextStyle;
 import java.time.temporal.ChronoField;
@@ -9,28 +10,52 @@ import java.util.Locale;
 
 public class PrintCalendar {
 private static final int TITLE_OFFSET = 8;
-static DayOfWeek [] daysOfWeek = DayOfWeek.values();
+static DayOfWeek[] daysOfWeek = DayOfWeek.values();
+
 	public static void main(String[] args) {
 		try {
-			System.out.println(DayOfWeek.valueOf("SUNDAY"));
+			
 			RecordArguments recordArguments = getRecordArguments(args);
+		//	System.out.println(recordArguments);
 			printCalendar (recordArguments);
-			DayOfWeek.valueOf("SUNDAY").getValue();
+			//DayOfWeek.valueOf("SUNDAY").getValue();
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
 
 	}
 
-	private static void printCalendar(RecordArguments recordArguments) {
+	private static void printCalendar(RecordArguments recordArguments) throws Exception {
 		printTitle(recordArguments.month(), recordArguments.year());
 		printWeekDays();
-		printDays(recordArguments.month(), recordArguments.year());
+		printDays(recordArguments.month(), recordArguments.year(), recordArguments.firstWeekDay());
 	}
 
-	private static void printDays(int month, int year) {
+	private static DayOfWeek getNewDayOfWeeks(String args) throws Exception {
+		//  Auto-generated method stub
+		String message = "";
+		try {
+			int i=0;
+			while (i < daysOfWeek.length && daysOfWeek[i].toString().compareTo(args.toUpperCase()) != 0) {
+					i++;
+	    	} 
+	if (i== daysOfWeek.length) {
+		message = "Day must be string from Monday to Sunday";
+	} 
+		} catch (NumberFormatException e) {
+		
+			message = "Day  must be a string from Monday to Sunday";
+		}
+		if (!message.isEmpty()) {
+			throw new Exception(message);
+		}
+		
+			return DayOfWeek.valueOf(args.toUpperCase());
+	}
+
+	private static void printDays(int month, int year, DayOfWeek firstWeekDay) {
 		int nDays = getNumberOfDaysNumber(month, year);
-		 int currentWeekDay = getFirstWeekDay(month, year);
+		 int currentWeekDay = getFirstWeekDay(month, year, firstWeekDay);
 		 printOffset(currentWeekDay);
 		 for (int day = 1; day <= nDays; day++) {
 			 System.out.printf("%4d", day);
@@ -48,10 +73,41 @@ static DayOfWeek [] daysOfWeek = DayOfWeek.values();
 		
 	}
 
-	private static int getFirstWeekDay(int month, int year) {
+	private static int getFirstWeekDay(int month, int year, DayOfWeek firstWeekDay) {
 		int weekDayNumber = LocalDate.of(year, month, 1)
 				.get(ChronoField.DAY_OF_WEEK);
-		return weekDayNumber -1;
+		DayOfWeek [] dayOfWeeksTemp = DayOfWeek.values();
+		
+		getNewCalendarsDays(firstWeekDay);
+		DayOfWeek oldDay = dayOfWeeksTemp[weekDayNumber-1];
+		int i = 0;
+		while (oldDay != daysOfWeek[i]) {
+			i++;
+		}
+	
+		return i;
+	}
+
+	private static  void getNewCalendarsDays(DayOfWeek firstWeekDay) {
+		//  Auto-generated method stub
+		int newNFirstDay = firstWeekDay.get(ChronoField.DAY_OF_WEEK);
+		
+		DayOfWeek [] dayOfWeeksTemp = DayOfWeek.values();
+		int i = 0;
+			for (int j = newNFirstDay-1; j<7; j++) {
+				daysOfWeek [i] = dayOfWeeksTemp[j];
+				//System.out.println(daysOfWeek[i]);
+							i++;
+							
+			}
+			for (int j=0; j<newNFirstDay-1; j++) {
+				
+				daysOfWeek[i] = dayOfWeeksTemp[j];
+				//System.out.println(daysOfWeek[i]);
+				i++;
+			
+		}
+		
 	}
 
 	private static int getNumberOfDaysNumber(int month, int year) {
@@ -64,8 +120,10 @@ static DayOfWeek [] daysOfWeek = DayOfWeek.values();
 		System.out.print("  ");
 		Arrays.stream(daysOfWeek)
 		.forEach(dw -> 
-		System.out.printf("%s ", dw.getDisplayName(TextStyle.SHORT_STANDALONE, Locale.getDefault())));
+			System.out.printf("%s ", dw.getDisplayName(TextStyle.SHORT_STANDALONE, Locale.getDefault())));
+		
 		System.out.println();
+		
 		
 	}
 
@@ -75,21 +133,24 @@ static DayOfWeek [] daysOfWeek = DayOfWeek.values();
 		String monthName = month.getDisplayName(TextStyle.FULL_STANDALONE, 
 				Locale.getDefault());
 		System.out.printf("%s%s, %d\n", " ".repeat(TITLE_OFFSET),monthName, year);
-		
-		
-		
+			
 	}
 
 	private static RecordArguments getRecordArguments(String[] args) throws Exception {
-		
+		final String defaultDay = "MONDAY";
 		LocalDate ld = LocalDate.now();
+		
 		int month = args.length == 0 ? ld.get(ChronoField.MONTH_OF_YEAR) :
 			getMonth(args[0]);
 		int year =  args.length > 1 ? getYear(args[1]) :
 			ld.get(ChronoField.YEAR);
-		return new RecordArguments(month, year, null);
+						
+		DayOfWeek firstWeekDay = args.length == 1 ? DayOfWeek.valueOf(defaultDay) :
+			getNewDayOfWeeks(args[2]);
+		
+		return new RecordArguments(month, year, firstWeekDay);
 	}
-
+	
 	private static int getYear(String yearStr) throws Exception {
 		String message = "";
 		int year = 0;
@@ -114,7 +175,7 @@ static DayOfWeek [] daysOfWeek = DayOfWeek.values();
 		try {
 			month = Integer.parseInt(monthStr);
 			if(month < 1 || month > 12  ) {
-				message = "month must be in the rane [1-12]";
+				message = "month must be in the range [1-12]";
 			}
 		} catch (NumberFormatException e) {
 		
