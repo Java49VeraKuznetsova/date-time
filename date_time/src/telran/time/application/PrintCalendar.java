@@ -16,7 +16,7 @@ static DayOfWeek[] daysOfWeek = DayOfWeek.values();
 		try {
 			
 			RecordArguments recordArguments = getRecordArguments(args);
-		//	System.out.println(recordArguments);
+		
 			printCalendar (recordArguments);
 			//DayOfWeek.valueOf("SUNDAY").getValue();
 		} catch (Exception e) {
@@ -27,6 +27,7 @@ static DayOfWeek[] daysOfWeek = DayOfWeek.values();
 
 	private static void printCalendar(RecordArguments recordArguments) throws Exception {
 		printTitle(recordArguments.month(), recordArguments.year());
+		getNewCalendarsDays(recordArguments.firstWeekDay());
 		printWeekDays();
 		printDays(recordArguments.month(), recordArguments.year(), recordArguments.firstWeekDay());
 	}
@@ -34,7 +35,10 @@ static DayOfWeek[] daysOfWeek = DayOfWeek.values();
 	private static DayOfWeek getNewDayOfWeeks(String args) throws Exception {
 		//  Auto-generated method stub
 		String message = "";
+		
 		try {
+			
+			
 			int i=0;
 			while (i < daysOfWeek.length && daysOfWeek[i].toString().compareTo(args.toUpperCase()) != 0) {
 					i++;
@@ -42,11 +46,11 @@ static DayOfWeek[] daysOfWeek = DayOfWeek.values();
 	if (i== daysOfWeek.length) {
 		message = "Day must be string from Monday to Sunday";
 	} 
-		} catch (NumberFormatException e) {
+		} catch (IllegalArgumentException e) {
 		
 			message = "Day  must be a string from Monday to Sunday";
 		}
-		if (!message.isEmpty()) {
+		if (!message.isEmpty() && args != null) {
 			throw new Exception(message);
 		}
 		
@@ -78,7 +82,7 @@ static DayOfWeek[] daysOfWeek = DayOfWeek.values();
 				.get(ChronoField.DAY_OF_WEEK);
 		DayOfWeek [] dayOfWeeksTemp = DayOfWeek.values();
 		
-		getNewCalendarsDays(firstWeekDay);
+	
 		DayOfWeek oldDay = dayOfWeeksTemp[weekDayNumber-1];
 		int i = 0;
 		while (oldDay != daysOfWeek[i]) {
@@ -96,15 +100,13 @@ static DayOfWeek[] daysOfWeek = DayOfWeek.values();
 		int i = 0;
 			for (int j = newNFirstDay-1; j<7; j++) {
 				daysOfWeek [i] = dayOfWeeksTemp[j];
-				//System.out.println(daysOfWeek[i]);
-							i++;
+											i++;
 							
 			}
 			for (int j=0; j<newNFirstDay-1; j++) {
 				
 				daysOfWeek[i] = dayOfWeeksTemp[j];
-				//System.out.println(daysOfWeek[i]);
-				i++;
+							i++;
 			
 		}
 		
@@ -123,8 +125,11 @@ static DayOfWeek[] daysOfWeek = DayOfWeek.values();
 			System.out.printf("%s ", dw.getDisplayName(TextStyle.SHORT_STANDALONE, Locale.getDefault())));
 		
 		System.out.println();
-		
-		
+		/*
+		for (int i = 0; i< daysOfWeek.length; i++) {
+			System.out.println(daysOfWeek[i]);
+		}
+		*/
 	}
 
 	private static void printTitle(int monthNumber, int year) {
@@ -133,6 +138,7 @@ static DayOfWeek[] daysOfWeek = DayOfWeek.values();
 		String monthName = month.getDisplayName(TextStyle.FULL_STANDALONE, 
 				Locale.getDefault());
 		System.out.printf("%s%s, %d\n", " ".repeat(TITLE_OFFSET),monthName, year);
+		
 			
 	}
 
@@ -145,8 +151,8 @@ static DayOfWeek[] daysOfWeek = DayOfWeek.values();
 		int year =  args.length > 1 ? getYear(args[1]) :
 			ld.get(ChronoField.YEAR);
 						
-		DayOfWeek firstWeekDay = args.length == 1 ? DayOfWeek.valueOf(defaultDay) :
-			getNewDayOfWeeks(args[2]);
+		DayOfWeek firstWeekDay = args.length >2 ? getNewDayOfWeeks(args[2]) : DayOfWeek.valueOf(defaultDay);
+			;
 		
 		return new RecordArguments(month, year, firstWeekDay);
 	}
